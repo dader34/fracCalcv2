@@ -7,7 +7,17 @@ let rnum = ""
 let rdenom = ""
 let lnum = ""
 let ldenom = ""
+let lfinal
+let rnum2
+let rdeno2
+let rwhole
+let rightstr
+let leftstr
+let indices = [];
+let anss
+let idx
 let farr
+let invis = "⠀"
 let rfinal
 let oper = undefined
 const readline = require('readline').createInterface({
@@ -17,6 +27,7 @@ const readline = require('readline').createInterface({
 const ask = () => {
   readline.question('Whats the problem?\n', ans => {
     console.log(solve(ans))
+    anss = ans
     readline.close();
   });
 }
@@ -26,22 +37,63 @@ const solve = (ans) => {
 
   if (ans.includes("+")) {
     oper = "+"
+    idx = ans.indexOf(oper)
   }
-  else if (ans.includes("-")) {
+  else if (ans.includes(" - ") && ans.indexOf(" - ")>=1) {
     oper = "-"
+    idx = ans.indexOf(oper)
   }
   else if (ans.includes("*")) {
     oper = "*"
+    idx = ans.indexOf(oper)
   }
   else {
     oper = "/"
+    idx = ans.indexOf("/")
   }
   if (!(ans.includes(oper))) {
     return "no operator"
   }
-  left = ans.substring(0, ans.indexOf(oper))
-  right = ans.substring(ans.indexOf(oper) + 1, ans.length)
+  left = ans.substring(0, idx)
+  right = ans.substring(idx + 1, ans.length)
   //test for whole, frac, mixed
+  if (left.includes("_") && "/") {
+    fstat = states[2]
+  } else if (left.includes("/") && !(left.includes("_"))) {
+    fstat = states[1]
+  } else if (!(left.includes("_") && "/")) {
+    fstat = states[0]
+  }
+  //tests for right
+  if (right.includes("_") && "/") {
+    sstat = states[2]
+  } else if (right.includes("/") && !(right.includes("_"))) {
+    sstat = states[1]
+  } else if (!(right.includes("_") && "/")) {
+    sstat = states[0]
+  }
+  console.log(oper)
+  if((oper == "/" && fstat == "whole") && (sstat == "frac" || "mixed")){
+    for(let i=0; i<ans.length;i++) {
+      if (ans.substring(i,i+3) === " / ") indices.push(i);
+    }
+
+    idx = indices[0] + 1
+    console.log(idx + " idx")
+  }else if((oper == "/") && (fstat == "mixed" || "frac") && (sstat == "whole")){
+    for(let i=0; i<ans.length;i++) {
+      if (ans[i] === " / ") indices.push(i);
+    }
+    idx = indices[1]
+  }
+  else if(oper == "-"){
+    if(!(right.includes(" - ") && left.includes(" - "))){
+      console.log("it is neg")
+    }
+  }
+  left = ans.substring(0, idx)
+  right = ans.substring(idx + 1, ans.length)
+   //test for whole, frac, mixed
   if (left.includes("_") && "/") {
     fstat = states[2]
   } else if (left.includes("/") && !(left.includes("_"))) {
@@ -72,13 +124,13 @@ const solve = (ans) => {
         return final * final2
         break;
       case "/":
-        return final / final2
+        return final + "/" +  final2
         break;
     }
   }
   if (fstat == "whole" && sstat == "frac") {
-    let leftstr = left.replace(" ", "")
-    let rightstr = right.replace(" ", "")
+    leftstr = left.replace(" ", "")
+    rightstr = right.replace(" ", "")
     rnum = Number.parseInt(rightstr.substring(0, rightstr.indexOf("/")))
     rdenom = Number.parseInt(rightstr.substring(rightstr.indexOf("/") + 1, rightstr.length))
     switch (oper) {
@@ -104,10 +156,125 @@ const solve = (ans) => {
         if (rdenom == 1) {
           return lnum - rnum
         }
-        // return `${(lnum * rdenom) - (ldenom * rnum)}/${(ldenom * rdenom)}`
-        return fractomixed((lnum * rdenom) - (ldenom * rnum),(ldenom * rdenom))
-    } 
+        return fractomixed((lnum * rdenom) - (ldenom * rnum), (ldenom * rdenom))
+
+      case "*":
+        lnum = Number.parseInt(leftstr)
+        ldenom = 1
+        rfinal = reduce(rnum, rdenom)
+        farr = rfinal.split(", ")
+        rnum = Number.parseInt(farr[0])
+        rdenom = Number.parseInt(farr[1])
+        if (rdenom == 1) {
+          return lnum * rnum
+        }
+        return fractomixed(lnum * rnum, ldenom * rdenom)
+      case "/":
+        lnum = Number.parseInt(leftstr)
+        ldenom = 1
+        rfinal = reduce(rnum, rdenom)
+        farr = rfinal.split(", ")
+        rnum = Number.parseInt(farr[0])
+        rdenom = Number.parseInt(farr[1])
+        if (rdenom == 1) {
+          return lnum / rnum
+        }
+        return fractomixed(lnum * rdenom, ldenom * rnum)
+    }
   }
+  if(fstat == "whole" && sstat == "mixed"){
+      leftstr = left.replace(" ","")
+      rightstr = right.replace(" ","")
+      lnum = Number.parseInt(leftstr)
+      ldenom = 1
+      rwhole = Number.parseInt(rightstr.substring(0,rightstr.indexOf("_")))
+      rnum = Number.parseInt(rightstr.substring(rightstr.indexOf("_")+1,rightstr.indexOf("/")))
+      rdenom = Number.parseInt(rightstr.substring(rightstr.indexOf("/")+1,rightstr.length))
+      switch(oper){
+        case "+":
+          rnum2 = Number.parseInt(mixedtofrac(rwhole,rnum,rdenom).substring(0,mixedtofrac(rwhole,rnum,rdenom).indexOf("/")))
+          rdeno2 = Number.parseInt(mixedtofrac(rwhole,rnum,rdenom).substring(mixedtofrac(rwhole,rnum,rdenom).indexOf("/")+1,mixedtofrac(rwhole,rnum,rdenom).length))
+          return(fractomixed((lnum * rdeno2) + (ldenom * rnum2),ldenom * rdeno2))
+
+        case "-":
+          rnum2 = Number.parseInt(mixedtofrac(rwhole,rnum,rdenom).substring(0,mixedtofrac(rwhole,rnum,rdenom).indexOf("/")))
+          rdeno2 = Number.parseInt(mixedtofrac(rwhole,rnum,rdenom).substring(mixedtofrac(rwhole,rnum,rdenom).indexOf("/")+1,mixedtofrac(rwhole,rnum,rdenom).length))
+          return(fractomixed((lnum * rdeno2) - (ldenom * rnum2),ldenom * rdeno2))
+        
+        case "*":
+          rnum2 = Number.parseInt(mixedtofrac(rwhole,rnum,rdenom).substring(0,mixedtofrac(rwhole,rnum,rdenom).indexOf("/")))
+          rdeno2 = Number.parseInt(mixedtofrac(rwhole,rnum,rdenom).substring(mixedtofrac(rwhole,rnum,rdenom).indexOf("/")+1,mixedtofrac(rwhole,rnum,rdenom).length))
+          return(fractomixed((lnum * rnum2),ldenom * rdeno2))
+        
+        case "/":
+          rnum2 = Number.parseInt(mixedtofrac(rwhole,rnum,rdenom).substring(0,mixedtofrac(rwhole,rnum,rdenom).indexOf("/")))
+          rdeno2 = Number.parseInt(mixedtofrac(rwhole,rnum,rdenom).substring(mixedtofrac(rwhole,rnum,rdenom).indexOf("/")+1,mixedtofrac(rwhole,rnum,rdenom).length))
+          return(fractomixed((lnum * rdeno2),ldenom * rnum2))
+      }
+    }
+    if(fstat == "frac" && sstat == "whole"){
+      leftstr = left.replace(" ", "")
+      rightstr = right.replace(" ", "")
+      lnum = Number.parseInt(leftstr.substring(0, leftstr.indexOf("/")))
+      ldenom = Number.parseInt(leftstr.substring(leftstr.indexOf("/") + 1, leftstr.length))
+      switch (oper) {
+        case "+":
+          rnum = Number.parseInt(rightstr)
+          rdenom = 1
+          lfinal = reduce(lnum, ldenom)
+          farr = lfinal.split(", ")
+          lnum = Number.parseInt(farr[0])
+          ldenom = Number.parseInt(farr[1])
+          if (ldenom == 1) {
+            return rnum + lnum
+          }
+          return rnum + " " + lnum + "/" + ldenom
+
+        case "-":
+          rnum = Number.parseInt(rightstr)
+          rdenom = 1
+          lfinal = reduce(lnum, ldenom)
+          farr = lfinal.split(", ")
+          lnum = Number.parseInt(farr[0])
+          ldenom = Number.parseInt(farr[1])
+          if (ldenom == 1) {
+            return lnum - rnum
+          }
+          return fractomixed((lnum * rdenom) - (ldenom * rnum), (ldenom * rdenom))
+
+        case "*":
+          rnum = Number.parseInt(rightstr)
+          rdenom = 1
+          lfinal = reduce(lnum,ldenom)
+          farr = lfinal.split(", ")
+          lnum = Number.parseInt(farr[0])
+          ldenom = Number.parseInt(farr[1])
+          if (ldenom == 1) {
+            return rnum * lnum
+          }
+          return fractomixed(rnum * lnum, rdenom * ldenom)
+
+        case "/":
+          console.log("lnum, " + lnum + ", ldenom, " + ldenom)
+          rnum = Number.parseInt(rightstr)
+          rdenom = 1
+          lfinal = reduce(lnum, ldenom)
+          farr = lfinal.split(", ")
+          lnum = Number.parseInt(farr[0])
+          ldenom = Number.parseInt(farr[1])
+          if (ldenom == 1) {
+            return rnum + "/"+ lnum
+          }
+          return fractomixed(rdenom * lnum,rnum * ldenom)
+      }
+      // if(fstat == "frac" && stat == "mixed"){
+      //   lnum = Number.parseInt(left.substring(0,left.indexOf("/")))
+      //   ldenom = Number.parseInt(left.substring(left.indexOf("/")+1,left.length))
+      //   rwhole = Number.parseInt(right.substring(0,right.indexOf("_")))
+      //   rnum = Number.parseInt(right.substring(right,indexOf("_")+1,right.indexOf("/")))
+      //   rdenom = right.substring
+      // }
+    }
 }
 const reduce = (x, y) => {
   let d;
@@ -125,19 +292,44 @@ const gcd = (a, b) => {
   return gcd(b, a % b);
 
 }
-
+const mixedtofrac = (whole,num,denom) =>{
+  let impr = whole * denom + num
+  return `${impr}/${denom}`
+}
 const fractomixed = (numer, denom) => {
   let numer2 = numer.toString()
-  if(numer2.includes("-")){
-    numer2 = numer2.replace("-","")
+  if ((numer2.includes("-")) || (denom.toString().includes("-"))){
+    if(denom.toString().indexOf("-")>=0){
+    numer2 = numer2.replace("-", "")
     numer = Number.parseInt(numer2)
-    let times = Math.floor(numer/denom)
+    let times = Math.floor(numer / denom)
     let remainder = numer % denom
+    if (remainder == 0) {
+      return times
+    }
+    if (times == 0 || times<0) {
+    let red = reduce(remainder,denom).split(", ")
+    let redn = red[0]
+    let redd = red[1]
+      return `-${redn.replace("-","")}/${redd.replace("-","")}`
+    }
     return `-${times} ${remainder}/${denom}`
+    }
+
   }
-  else{
-    let times = Math.floor(numer/denom)
-    let remainder = numer % denom
+  let times = Math.floor(numer / denom)
+  let remainder = numer % denom
+  if (remainder == 0) {
+    return times
   }
-  return `${times} ${remainder}/${denom}`
+  if (times <1) {
+    let red = reduce(remainder,denom).split(", ")
+    let redn = red[0]
+    let redd = red[1]
+    return `${redn}/${redd}`.replace("-","")
+  }
+  let red = reduce(remainder,denom).split(", ")
+  let redn = red[0]
+  let redd = red[1]
+  return `${times} ${redn}/${redd}`
 }
