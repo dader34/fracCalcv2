@@ -84,6 +84,13 @@ const solve = (ans) => {
     }
     idx = indices[1]
   }
+  else if(oper == "/" && fstat == "mixed" && sstat == "mixed"){
+    console.log("test")
+    for(let i=0; i<ans.length;i++) {
+      if (ans.substring(i,i+3) === " / ") indices.push(i);
+    }
+    idx = indices[0]+1
+  }
   else if(oper == "-"){
     if(!(right.includes(" - ") && left.includes(" - "))){
       console.log("it is neg")
@@ -327,21 +334,12 @@ const solve = (ans) => {
       rwhole = Number.parseInt(right.substring(0,right.indexOf("_")))
       rnum = Number.parseInt(right.substring(right.indexOf("_")+1,right.indexOf("/")))
       rdenom = Number.parseInt(right.substring(right.indexOf("/")+1,right.length))
-      console.log("rnum, " + rnum)
-      console.log("rdenom, " + rdenom)
       let reducedl = mixedtofrac(lwhole,lnum,ldenom).split("/")
       let reducedr = mixedtofrac(rwhole,rnum,rdenom).split("/")
-      //bugged code somewhere here
-      //todo: fix error where rnum is NaN and makes gcd cause a stack overflow
       lnum = reducedl[0]
       ldenom = reducedl[1]
       rnum = reducedr[0]
       rdenom = reducedr[1]
-      console.log(reducedl)
-      console.log("rnum, " + rnum)
-      console.log("rdenom, " + rdenom)
-      console.log(reducedr)
-      //end todo
       switch(oper){
         case "+":
           return fractomixed((lnum*rdenom)+(ldenom*rnum),ldenom*rdenom)
