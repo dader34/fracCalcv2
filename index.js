@@ -8,16 +8,16 @@ let rdenom = ""
 let lnum = ""
 let ldenom = ""
 let lfinal
+let lwhole
+let impr
 let rnum2
 let rdeno2
 let rwhole
 let rightstr
 let leftstr
 let indices = [];
-let anss
 let idx
 let farr
-let invis = "⠀"
 let rfinal
 let oper = undefined
 const readline = require('readline').createInterface({
@@ -34,7 +34,6 @@ const ask = () => {
 ask()
 const solve = (ans) => {
   //operator logic
-
   if (ans.includes("+")) {
     oper = "+"
     idx = ans.indexOf(oper)
@@ -72,7 +71,6 @@ const solve = (ans) => {
   } else if (!(right.includes("_") && "/")) {
     sstat = states[0]
   }
-  console.log(oper)
   if((oper == "/" && fstat == "whole") && (sstat == "frac" || "mixed")){
     for(let i=0; i<ans.length;i++) {
       if (ans.substring(i,i+3) === " / ") indices.push(i);
@@ -115,13 +113,13 @@ const solve = (ans) => {
     let final2 = Number.parseInt(right.replace(" ", ""))
     switch (oper) {
       case "+":
-        return final + final2
+        return (final + final2).toString()
         break;
       case "-":
-        return final - final2
+        return (final - final2).toString()
         break;
       case "*":
-        return final * final2
+        return (final * final2).toString()
         break;
       case "/":
         return final + "/" +  final2
@@ -267,16 +265,100 @@ const solve = (ans) => {
           }
           return fractomixed(rdenom * lnum,rnum * ldenom)
       }
-      // if(fstat == "frac" && stat == "mixed"){
-      //   lnum = Number.parseInt(left.substring(0,left.indexOf("/")))
-      //   ldenom = Number.parseInt(left.substring(left.indexOf("/")+1,left.length))
-      //   rwhole = Number.parseInt(right.substring(0,right.indexOf("_")))
-      //   rnum = Number.parseInt(right.substring(right,indexOf("_")+1,right.indexOf("/")))
-      //   rdenom = right.substring
-      // }
+      }
+      if(fstat == "frac" && sstat == "mixed"){
+        console.log("test")
+        lnum = Number.parseInt(left.substring(0,left.indexOf("/")))
+        ldenom = Number.parseInt(left.substring(left.indexOf("/")+1,left.length))
+        rwhole = Number.parseInt(right.substring(0,right.indexOf("_")))
+        rnum = Number.parseInt(right.substring(right.indexOf("_")+1,right.indexOf("/")))
+        rdenom = right.substring(right.indexOf("/")+1,right.length)
+        switch(oper){
+          case "+":
+            impr = mixedtofrac(rwhole,rnum,rdenom).split("/")
+            rnum = Number.parseInt(impr[0])
+            rdenom = Number.parseInt(impr[1])
+            return fractomixed((lnum * rdenom)+(rnum*ldenom),ldenom*rdenom)
+          
+          case "-":
+            impr = mixedtofrac(rwhole,rnum,rdenom).split("/")
+            rnum = Number.parseInt(impr[0])
+            rdenom = Number.parseInt(impr[1])
+            console.log(impr)
+            console.table([lnum,rnum,ldenom,rdenom])
+            return fractomixed((lnum * rdenom)-(rnum*ldenom),ldenom*rdenom)
+          //todo//
+          case "*":
+            impr = mixedtofrac(rwhole,rnum,rdenom).split("/")
+            rnum = Number.parseInt(impr[0])
+            rdenom = Number.parseInt(impr[1])
+            return fractomixed((lnum * rnum),ldenom*rdenom)
+          
+          case "/":
+            impr = mixedtofrac(rwhole,rnum,rdenom).split("/")
+            rnum = Number.parseInt(impr[0])
+            rdenom = Number.parseInt(impr[1])
+            return fractomixed(lnum*rdenom,ldenom*rnum)
+        } //end todo//
+    }
+    if(fstat == "frac" && sstat == "frac"){
+      lnum = Number.parseInt(left.substring(0,left.indexOf("/")))
+      ldenom = Number.parseInt(left.substring(left.indexOf("/")+1,left.length))
+      rnum = Number.parseInt(right.substring(0,right.indexOf("/")))
+      rdenom = Number.parseInt(right.substring(right.indexOf("/")+1,right.length))
+      switch(oper){
+        case "+":
+          return fractomixed((lnum*rdenom)+(ldenom*rnum),ldenom*rdenom)
+
+        case "-":
+          return fractomixed((lnum*rdenom)-(ldenom*rnum),ldenom*rdenom)
+        
+        case "*":
+          return fractomixed(lnum * rnum,ldenom*rdenom)
+        
+        case "/":
+          return fractomixed(lnum * rdenom,ldenom * rnum)
+      }
+    }
+    if(fstat == "mixed" && sstat == "mixed"){
+      lwhole = Number.parseInt(left.substring(0,left.indexOf("_")))
+      lnum = Number.parseInt(left.substring(left.indexOf("_")+1,left.indexOf("/")))
+      ldenom = Number.parseInt(left.substring(left.indexOf("/")+1,left.length))
+      rwhole = Number.parseInt(right.substring(0,right.indexOf("_")))
+      rnum = Number.parseInt(right.substring(right.indexOf("_")+1,right.indexOf("/")))
+      rdenom = Number.parseInt(right.substring(right.indexOf("/")+1,right.length))
+      console.log("rnum, " + rnum)
+      console.log("rdenom, " + rdenom)
+      let reducedl = mixedtofrac(lwhole,lnum,ldenom).split("/")
+      let reducedr = mixedtofrac(rwhole,rnum,rdenom).split("/")
+      //bugged code somewhere here
+      //todo: fix error where rnum is NaN and makes gcd cause a stack overflow
+      lnum = reducedl[0]
+      ldenom = reducedl[1]
+      rnum = reducedr[0]
+      rdenom = reducedr[1]
+      console.log(reducedl)
+      console.log("rnum, " + rnum)
+      console.log("rdenom, " + rdenom)
+      console.log(reducedr)
+      //end todo
+      switch(oper){
+        case "+":
+          return fractomixed((lnum*rdenom)+(ldenom*rnum),ldenom*rdenom)
+
+        case "-":
+          return fractomixed((lnum*rdenom)-(ldenom*rnum),ldenom*rdenom)
+        
+        case "*":
+          return fractomixed(lnum * rnum,ldenom*rdenom)
+        
+        case "/":
+          return fractomixed(lnum * rdenom,ldenom * rnum)
+      }
     }
 }
 const reduce = (x, y) => {
+  console.log(x + " <= x , y => " + y)
   let d;
   d = gcd(x, y);
 
@@ -297,30 +379,40 @@ const mixedtofrac = (whole,num,denom) =>{
   return `${impr}/${denom}`
 }
 const fractomixed = (numer, denom) => {
+  console.log(numer)
   let numer2 = numer.toString()
-  if ((numer2.includes("-")) || (denom.toString().includes("-"))){
-    if(denom.toString().indexOf("-")>=0){
+  let deno2 = numer.toString()
+  console.log(deno2)
+  if (numer2.includes("-")){
+    if(deno2.indexOf("-")>=0 || numer2.indexOf("-")>=0){
     numer2 = numer2.replace("-", "")
     numer = Number.parseInt(numer2)
     let times = Math.floor(numer / denom)
     let remainder = numer % denom
     if (remainder == 0) {
-      return times
+      return times.toString()
     }
     if (times == 0 || times<0) {
     let red = reduce(remainder,denom).split(", ")
     let redn = red[0]
     let redd = red[1]
+    console.log(deno2)
       return `-${redn.replace("-","")}/${redd.replace("-","")}`
     }
-    return `-${times} ${remainder}/${denom}`
+    let redu = reduce(remainder,denom).split(", ")
+    let redun = redu[0]
+    let redud = redu[1]
+    return `-${times} ${redun.replace("-","")}/${redud.replace("-","")}`
     }
 
   }
+  console.log(1)
+  console.log(numer.toString().includes("-"))
+  console.log(denom)
   let times = Math.floor(numer / denom)
   let remainder = numer % denom
   if (remainder == 0) {
-    return times
+    return times.toString()
   }
   if (times <1) {
     let red = reduce(remainder,denom).split(", ")
