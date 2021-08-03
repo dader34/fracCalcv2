@@ -1,0 +1,25 @@
+body{
+  background: #2a2d4d;;
+  margin: 0%;
+}
+input{
+  flex: 1;
+  color: #d4d5e0;
+  /* display: block; */
+  /* border: none; */
+  width: 101%;
+  height: 40px;
+  /* box-sizing: border-box; */
+  margin: 0;
+  /* outline: none; */
+  background: 0 0;
+  font-size: 14px;
+  font-weight: 500;
+  /* padding: 0 10px; */
+  /* text-align: center; */
+}
+p{
+  color: #d4d5e0;
+  font-size: 14px;
+  font-weight: 500;
+}
