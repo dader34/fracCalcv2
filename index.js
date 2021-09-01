@@ -278,7 +278,6 @@ const solve = (ans) => {
                 impr = mixedtofrac(rwhole, rnum, rdenom).split("/")
                 rnum = Number.parseInt(impr[0])
                 rdenom = Number.parseInt(impr[1])
-                console.table([lnum, rnum, ldenom, rdenom])
                 return fractomixed((lnum * rdenom) - (rnum * ldenom), ldenom * rdenom)
                 //todo//
             case "*":
